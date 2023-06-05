@@ -24,7 +24,7 @@ fn hola<'a>() -> Json<Message<'a>> {
         description: "Hola mundo!",
         ok: true
     };
-    Json(message)
+    Json(message) 
 }
 #[get("/user")]
 fn get_user() -> Json<User> {
