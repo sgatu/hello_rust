@@ -1,4 +1,4 @@
 
-pub struct MysqlRepository {
+pub struct MysqlConnection {
     
 }
