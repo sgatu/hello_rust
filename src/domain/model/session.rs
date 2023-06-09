@@ -1,14 +1,10 @@
 use super::user::User;
-use chrono::{DateTime, Utc};
+use chrono::NaiveDateTime;
 
 pub struct SessionData {
-    pub created: DateTime<Utc>,
-    pub expire: DateTime<Utc>,
+    pub created: NaiveDateTime,
+    pub expire: NaiveDateTime,
     pub token: String,
     pub user: User
 }
 
-pub enum SessionState {
-    Connected(SessionData),
-    NotConnected
-}

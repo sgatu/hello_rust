@@ -1,42 +1,35 @@
 #[macro_use] extern crate rocket;
-use rocket::serde::{Serialize, Deserialize, json::Json};
+use mysql::Pool;
+use rocket::{serde::json::{Json, Value, serde_json::json}, http::Status, Request};
+use dotenvy::{self, dotenv};
+use std::env;
 
 mod domain;
-use domain::model::User;
-
-#[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-struct Message<'t> {
-    description: &'t str,
-    ok: bool
-}
+mod application;
+mod infrastructure;
+use domain::model::{User, SessionData};
 #[get("/")]
 async fn index<'a>() -> Json<String> {
-    let message = Message {
-        description: "Hello world!",
-        ok: true
-    };
-    Json(message.description.to_string())
-}
-#[get("/hola")]
-fn hola<'a>() -> Json<Message<'a>> {
-    let message = Message {
-        description: "Hola mundo!",
-        ok: true
-    };
-    Json(message) 
+    Json("Hello world!".to_string())
 }
 #[get("/user")]
-fn get_user() -> Json<User> {
-    let user = User::new(
-        "Stefan", 
-        "stefan.gatu@gmail.com", 
-        "abc"
-    );
-    Json(user)
+fn get_user(session_data: SessionData) -> Json<User> {
+    Json(session_data.user)
+}
+#[catch(default)]
+fn err_handler(status: Status, _req: &Request)-> Value {
+    json!({
+        "error": status.code,
+        "message": status.reason()
+    })
 }
 #[launch]
 fn rocket() -> _ {
-    rocket::build()
-    .mount("/", routes![index, hola, get_user])
+    dotenv().expect("Missing .env file.");
+    let pool: Pool = Pool::new(std::env::var("MYSQL_URL").unwrap().as_str()).unwrap();
+    let mut rocket = rocket::build()
+    .mount("/", routes![index, get_user])
+    .register("/", catchers![err_handler]);
+    rocket = infrastructure::repository::manage(rocket, pool);
+    rocket
 }

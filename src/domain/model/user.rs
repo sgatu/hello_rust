@@ -6,7 +6,7 @@ use super::formatter::formatter;
 use bcrypt::hash;
 use rocket::serde::{Serialize, Deserialize}; 
 use rand::Rng;
-use chrono::{DateTime, Utc};
+use chrono::{NaiveDateTime, Utc};
 
 const PASSWORD_HASH_COST: u32 = 10;
 
@@ -21,12 +21,12 @@ pub struct User {
     pub email: String,
     pub password: String,
     #[serde(with = "formatter::datetime")]
-    pub created: DateTime<Utc>,
+    pub created: NaiveDateTime,
 }
 
 impl User {
     pub fn new(name: &str, email: &str, password: &str) -> Self {
-        let dt = Utc::now();
+        let dt = Utc::now().naive_utc();
         Self {
             id: rand::thread_rng().gen(),
             name: name.to_string(),
@@ -35,7 +35,7 @@ impl User {
             created: dt
         }
     }
-    pub fn from(id: u64, name: &str, email: &str, password: &str, created: DateTime<Utc>) -> Self {
+    pub fn from(id: u64, name: &str, email: &str, password: &str, created: NaiveDateTime) -> Self {
         Self {
             id: id,
             name: name.to_string(),
