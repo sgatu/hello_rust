@@ -107,7 +107,7 @@ impl MysqlSessionRepository {
         let result = connection.exec_iter(stm, params! {"email"=>email});
         match result {
             Ok(mut rows) => {
-                let mut row = rows
+                let row = rows
                     .next()
                     .ok_or(SessionError::Invalid)?
                     .map_err(|_e| SessionError::Invalid)?;
@@ -127,7 +127,7 @@ impl MysqlSessionRepository {
         let result = connection.exec_iter(stm, params! {"uid"=>user_id});
         match result {
             Ok(mut rows) => {
-                let mut row = rows
+                let row = rows
                     .next()
                     .ok_or(SessionError::Invalid)?
                     .map_err(|_e| SessionError::Invalid)?;
