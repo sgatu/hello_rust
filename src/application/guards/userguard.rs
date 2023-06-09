@@ -1,9 +1,6 @@
-use crate::{
-    domain::{
-        model::SessionData,
-        repository::{SessionError, SessionRepository},
-    },
-    infrastructure::repository::MysqlSessionRepository,
+use crate::domain::{
+    model::SessionData,
+    repository::{SessionError, SessionRepository},
 };
 use chrono::Utc;
 use rocket::{
@@ -12,11 +9,6 @@ use rocket::{
     State,
 };
 
-/*#[derive(Debug)]
-pub enum SessionError {
-    Invalid,
-    Missing
-}*/
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for SessionData {
     type Error = SessionError;
