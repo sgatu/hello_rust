@@ -66,7 +66,7 @@ impl SessionRepository for MysqlSessionRepository {
         connection.exec_drop(
             stm,
             params! {"user_id"=>session.user.id, "token"=>session.token.to_string(), "created"=>session.created, "expire" => session.expire},
-        ).map_err(|_e| {dbg!(_e); SessionError::Error})?;
+        ).map_err(|_e| SessionError::Error)?;
         Ok(session)
     }
 
