@@ -11,6 +11,7 @@ use rocket::{
 mod application;
 mod domain;
 mod infrastructure;
+mod testing;
 
 #[catch(default)]
 fn err_handler(status: Status, _req: &Request) -> Value {

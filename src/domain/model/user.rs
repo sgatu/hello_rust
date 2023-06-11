@@ -1,32 +1,27 @@
 extern crate bcrypt;
 extern crate chrono;
 
-use super::formatter::formatter;
-
 use bcrypt::{hash, verify, BcryptResult};
 use chrono::{NaiveDateTime, Utc};
 use email_address::*;
 use passwords::analyzer;
 use passwords::scorer;
 use rand::Rng;
-use rocket::serde::{Deserialize, Serialize};
 const PASSWORD_HASH_COST: u32 = 10;
-
-#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[readonly::make]
-#[serde(crate = "rocket::serde")]
+#[derive(Debug, Eq, PartialEq)]
 pub struct User {
     pub id: u64,
     pub name: String,
     pub email: String,
     pub password: String,
-    #[serde(with = "formatter::datetime")]
     pub created: NaiveDateTime,
 }
+#[derive(Debug, Eq, PartialEq)]
 pub enum UserError {
     InvalidPassword,
     InvalidEmail,
 }
+const MINIMUM_PASSWORD_SCORE: f64 = 60f64;
 impl User {
     pub fn new(name: &str, email: &str, password: &str) -> Result<Self, UserError> {
         let dt = Utc::now().naive_utc();
@@ -61,7 +56,7 @@ impl User {
             return Some(UserError::InvalidEmail);
         }
         let pass_score = scorer::score(&analyzer::analyze(password));
-        if pass_score < 60f64 {
+        if pass_score < MINIMUM_PASSWORD_SCORE {
             return Some(UserError::InvalidPassword);
         }
         None

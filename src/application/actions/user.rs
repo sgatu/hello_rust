@@ -8,7 +8,7 @@ use rocket::{
 };
 
 use crate::{
-    application::responders::ApiError,
+    application::responders::{ApiError, SessionReponse, UserResponse},
     domain::{
         model::{SessionData, User, UserError},
         repository::{SessionError, SessionRepository, UserRegistrationError},
@@ -30,8 +30,8 @@ pub struct Registration {
 }
 
 #[get("/me")]
-pub fn get_me(session_data: SessionData) -> Json<User> {
-    Json(session_data.user.to_owned())
+pub fn get_me(session_data: SessionData) -> Json<UserResponse> {
+    Json(UserResponse::new(&session_data.user))
 }
 #[get("/greet")]
 pub fn greet(session_data: SessionData) -> Value {
@@ -42,15 +42,15 @@ pub fn greet(session_data: SessionData) -> Value {
 pub fn register(
     registration: Json<Registration>,
     session_repository: &State<Box<dyn SessionRepository>>,
-) -> Result<Json<User>, ApiError> {
+) -> Result<Json<UserResponse>, ApiError> {
     let user = User::new(
         &registration.name,
         &registration.email,
         &registration.password,
     );
     match user {
-        Ok(u) => Ok(Json(session_repository.register_user(u).map_err(
-            |e| match e {
+        Ok(u) => {
+            let user = session_repository.register_user(u).map_err(|e| match e {
                 UserRegistrationError::Existing => ApiError {
                     msg: "User with same email addresss already exists".to_string(),
                     status: Status::BadRequest,
@@ -59,8 +59,9 @@ pub fn register(
                     msg: "Something unexpected happened".to_string(),
                     status: Status::InternalServerError,
                 },
-            },
-        )?)),
+            })?;
+            Ok(Json(UserResponse::new(&user)))
+        }
         Err(UserError::InvalidEmail) => Err(ApiError {
             msg: "Invalid email specified".to_string(),
             status: Status::BadRequest,
@@ -76,14 +77,14 @@ pub fn register(
 pub fn login(
     request_data: Json<Credentials>,
     session_repository: &State<Box<dyn SessionRepository>>,
-) -> Result<Json<SessionData>, Status> {
+) -> Result<Json<SessionReponse>, Status> {
     let session_data = session_repository
         .create_session(&request_data.email, &request_data.password)
         .map_err(|e| match e {
             SessionError::Invalid => Status::Unauthorized,
             _ => Status::InternalServerError,
         })?;
-    Ok(Json(session_data))
+    Ok(Json(SessionReponse::new(&session_data)))
 }
 
 #[delete("/")]

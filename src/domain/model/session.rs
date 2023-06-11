@@ -1,19 +1,16 @@
-use super::{formatter::formatter, user::User};
+use super::user::User;
 use chrono::{Duration, NaiveDateTime, Utc};
-use rocket::serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[readonly::make]
-#[serde(crate = "rocket::serde")]
+#[derive(Eq, PartialEq)]
 pub struct SessionData {
-    #[serde(with = "formatter::datetime")]
     pub created: NaiveDateTime,
-    #[serde(with = "formatter::datetime")]
     pub expire: NaiveDateTime,
     pub token: String,
     pub user: User,
 }
-
+pub mod session_config {
+    pub const SESSION_TOKEN_LENGTH: i32 = 24;
+}
 impl SessionData {
     pub fn from(token: String, user: User, expire: NaiveDateTime, created: NaiveDateTime) -> Self {
         SessionData {
@@ -38,7 +35,7 @@ impl SessionData {
         SessionData {
             created: created,
             expire: expire,
-            token: Self::generate_token(24),
+            token: Self::generate_token(session_config::SESSION_TOKEN_LENGTH),
             user: user,
         }
     }
