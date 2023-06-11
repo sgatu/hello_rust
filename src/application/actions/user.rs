@@ -10,8 +10,8 @@ use rocket::{
 use crate::{
     application::responders::{ApiError, SessionReponse, UserResponse},
     domain::{
-        model::{SessionData, User, UserError},
-        repository::{SessionError, SessionRepository, UserRegistrationError},
+        model::{SessionData, User},
+        repository::{SessionError, SessionRepository},
     },
 };
 
@@ -47,30 +47,9 @@ pub fn register(
         &registration.name,
         &registration.email,
         &registration.password,
-    );
-    match user {
-        Ok(u) => {
-            let user = session_repository.register_user(u).map_err(|e| match e {
-                UserRegistrationError::Existing => ApiError {
-                    msg: "User with same email addresss already exists".to_string(),
-                    status: Status::BadRequest,
-                },
-                _ => ApiError {
-                    msg: "Something unexpected happened".to_string(),
-                    status: Status::InternalServerError,
-                },
-            })?;
-            Ok(Json(UserResponse::new(&user)))
-        }
-        Err(UserError::InvalidEmail) => Err(ApiError {
-            msg: "Invalid email specified".to_string(),
-            status: Status::BadRequest,
-        }),
-        Err(UserError::InvalidPassword) => Err(ApiError {
-            msg: "Password is not secure enough. Try a harder one.".to_string(),
-            status: Status::BadRequest,
-        }),
-    }
+    )?;
+    let user = session_repository.register_user(user)?;
+    Ok(Json(UserResponse::new(&user)))
 }
 
 #[post("/", data = "<request_data>")]
@@ -89,12 +68,12 @@ pub fn login(
 
 #[delete("/")]
 pub fn revoke_token(
-    mut session: SessionData,
+    session: SessionData,
     session_repository: &State<Box<dyn SessionRepository>>,
 ) -> Result<Value, Status> {
-    session = session.revoke();
+    let updated_session = session.revoke();
     session_repository
-        .save(session)
+        .save(updated_session)
         .map_err(|_e| Status::InternalServerError)?;
     Ok(json!({"status":"ok"}))
 }
