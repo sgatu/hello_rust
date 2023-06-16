@@ -1,18 +1,15 @@
 use chrono::NaiveDateTime;
-use mysql::Pool;
 
-use mysql::params;
-use mysql::error::Error::MySqlError;
-use mysql::prelude::Queryable;
+use mysql::{ params, error::Error::MySqlError, prelude::Queryable, Pool };
 use mysql_common::Row;
 
-use crate::domain::model::SessionData;
-use crate::domain::model::User;
-use crate::domain::repository::ResultSession;
-use crate::domain::repository::ResultUser;
-use crate::domain::repository::SessionError;
-use crate::domain::repository::SessionRepository;
-use crate::domain::repository::UserRegistrationError;
+use crate::domain::{
+    model::{ User, SessionData }, 
+    repository::{ 
+        ResultSession, ResultUser, UserRegistrationError, SessionError, SessionRepository 
+    }
+};
+
 
 pub struct MysqlSessionRepository {
     connection_pool: Pool,

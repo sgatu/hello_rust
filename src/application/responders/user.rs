@@ -5,7 +5,6 @@ use rocket::serde::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[readonly::make]
-#[serde(crate = "rocket::serde")]
 pub struct UserResponse {
     name: String,
     email: String,
@@ -15,10 +14,10 @@ pub struct UserResponse {
     created: NaiveDateTime,
 }
 impl UserResponse {
-    pub fn new(user: &User) -> Self {
+    pub fn new(user: User) -> Self {
         Self {
-            name: user.name.to_owned(),
-            email: user.email.to_owned(),
+            name: user.name,
+            email: user.email,
             id: user.id,
             created: user.created,
         }

@@ -16,13 +16,11 @@ use crate::{
 };
 
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
 pub struct Credentials {
     email: String,
     password: String,
 }
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
 pub struct Registration {
     email: String,
     password: String,
@@ -31,7 +29,7 @@ pub struct Registration {
 
 #[get("/me")]
 pub fn get_me(session_data: SessionData) -> Json<UserResponse> {
-    Json(UserResponse::new(&session_data.user))
+    Json(UserResponse::new(session_data.user))
 }
 #[get("/greet")]
 pub fn greet(session_data: SessionData) -> Value {
@@ -49,7 +47,7 @@ pub fn register(
         &registration.password,
     )?;
     let user = session_repository.register_user(user)?;
-    Ok(Json(UserResponse::new(&user)))
+    Ok(Json(UserResponse::new(user)))
 }
 
 #[post("/", data = "<request_data>")]
@@ -63,7 +61,7 @@ pub fn login(
             SessionError::Invalid => Status::Unauthorized,
             _ => Status::InternalServerError,
         })?;
-    Ok(Json(SessionReponse::new(&session_data)))
+    Ok(Json(SessionReponse::new(session_data)))
 }
 
 #[delete("/")]

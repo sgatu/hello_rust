@@ -1,4 +1,3 @@
-#[cfg(test)]
 mod test_batch {
     use crate::domain::model::UserError;
 

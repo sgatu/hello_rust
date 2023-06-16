@@ -1,8 +1,8 @@
 use rocket::{Build, Rocket};
 
-use self::user::{get_me, greet, login, register, revoke_token};
-
 mod user;
+
+use self::user::{get_me, greet, login, register, revoke_token};
 
 pub fn mount(rocket: Rocket<Build>) -> Rocket<Build> {
     rocket

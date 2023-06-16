@@ -1,4 +1,3 @@
-#[cfg(test)]
 mod test_batch {
     use chrono::Utc;
 
@@ -13,14 +12,16 @@ mod test_batch {
         let time_diff = 600;
         let session = SessionData::new(get_valid_user(), time_diff);
         let diff = session.expire - session.created;
-        assert!(
-            diff.num_seconds() == time_diff,
+        assert_eq!(
+            diff.num_seconds(),
+            time_diff,
             "Session expiration should be {} seconds into the future but is {} seconds.",
             time_diff,
             diff.num_seconds()
         );
-        assert!(
-            session.token.len() as i32 == session_config::SESSION_TOKEN_LENGTH,
+        assert_eq!(
+            session.token.len() as i32,
+            session_config::SESSION_TOKEN_LENGTH,
             "Invalid session token length"
         )
     }
