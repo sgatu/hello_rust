@@ -3,6 +3,7 @@ FROM rust:1.67 as build
 RUN mkdir /opt/hello-rust
 WORKDIR /opt/hello-rust
 COPY . .
+RUN ls -lha ./
 RUN cargo build --release
 
 

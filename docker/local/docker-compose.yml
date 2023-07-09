@@ -1,0 +1,15 @@
+version: '3.3'
+services:
+  database:
+    image: mysql:8.0
+    restart: always
+    network_mode: host
+    environment:
+      - MYSQL_ROOT_PASSWORD=abcABC123
+  hello_rust:
+    build:
+      context: ../../
+      dockerfile: ./docker/Dockerfile
+    network_mode: host
+    depends_on:
+      - database
